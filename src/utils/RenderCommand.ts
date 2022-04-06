@@ -1,20 +1,27 @@
+export interface CmdObjectEvent {
+    detail: {
+        command: string;
+        result: string;
+    }
+}
+
 export interface CmdObject {
-    command: string;
-    result: string;
+        command: string;
+        result: string;
 }
 
 export interface Observer {
     getUpdate: (cmd: CmdObject) => void;
 }
 
-export class RenderCommand {
+export class RenderCommand extends EventTarget{
     private static instance: RenderCommand;
     private _renderCmdList: CmdObject[];
-    private observers = new Set<Observer>();
 
     private constructor() {
-        this._renderCmdList = [];
-    }
+        super();
+        this._renderCmdList = [];    
+    }   
 
     public static getInstance(): RenderCommand {
         if(!RenderCommand.instance) {
@@ -22,24 +29,19 @@ export class RenderCommand {
         }
         return RenderCommand.instance;
     }
-
-    public addItemCmdList(object: CmdObject) {
+    
+    public addItemCmdList(object: CmdObject): void {
         this._renderCmdList.push(object);
+        this.dispatchEvent(
+            new CustomEvent('newCmd', this.castCmdObject(object))
+        );
     }
 
-    public getLastCmd() {
+    public castCmdObject(cmd: CmdObject): CmdObjectEvent {
+        return {'detail': cmd};
+    }
+
+    public getLastCmd(): CmdObject{
         return this._renderCmdList[-1];
-    }
-
-    subscribe(observer: Observer){
-        this.observers.add(observer);
-    }
-
-    unsubscribe(observer: Observer){
-        this.observers.delete(observer);
-    }
-
-    notify(cmd: CmdObject){
-        this.observers.forEach(observer => observer.update(cmd));
     }
 }
