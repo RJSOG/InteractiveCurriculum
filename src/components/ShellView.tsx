@@ -1,7 +1,6 @@
 import React, { FunctionComponent, useEffect } from "react";
-import CmdParser from "../utils/CmdParser";
 import InputHandler from "../utils/InputHandler";
-import {RenderCommand, Observer, CmdObject} from "../utils/RenderCommand";
+import {RenderCommand, CmdObject} from "../utils/RenderCommand";
 import '../style/ShellView.css'; 
 
 type inputState = {
@@ -20,19 +19,22 @@ const InputHandlerInstance = InputHandler.getInstance();
 const ShellView: FunctionComponent = () => {
     const [input, setInput] = React.useState<inputState>({isDone: false, value: ""});
     const [cmdArr, setCmdArr] = React.useState<CmdObject[]>([]);
+    const [shellWidth, setShellWidth] = React.useState<number>(768);
+    const [shellHeight, setShellHeight] = React.useState<number>(95);
 
     const newCmdHandler = (e: Event) => {
         const EventResult = (e as CustomEvent).detail;
         if(EventResult != null) setCmdArr(cmdArr.concat(EventResult as CmdObject));
     };
 
-    RenderCommandInstance.addEventListener('newCmd', newCmdHandler)
+    RenderCommandInstance.addEventListener('newCmd', newCmdHandler);
 
     useEffect(() => {
         if(input.isDone){
             renderNewCmd(input.value);
             setInput({isDone: false, value: ""});
-            InputHandlerInstance.newInput(input.value);
+            updateWidthandHeight();
+            InputHandlerInstance.handleInput(input.value);
         }  
     }, [input]);
     const renderNewCmd = (cmd: string) => {
@@ -60,6 +62,14 @@ const ShellView: FunctionComponent = () => {
         }
     }
 
+    const updateWidthandHeight = () => {
+        const shellDiv = document.getElementById('shell');
+        const shellDivHeight = shellDiv?.clientHeight;  
+        const shellDivWidth = shellDiv?.clientWidth;
+        setShellWidth(shellDivWidth!);
+        setShellHeight(shellDivHeight!);
+    }
+
     return (
         <div id='shell'>
             <div className="terminal space shadow">
@@ -69,7 +79,7 @@ const ShellView: FunctionComponent = () => {
                         <span className="circle yellow"></span>
                         <span className="circle green"></span>
                     </div>
-                    <div className="title">bash -- 70x32</div>  
+                    <div className="title">bash -- {shellWidth}x{shellHeight}</div>  
                         <pre id='render' className="render">
                             {
                                 cmdArr.map((cmd: CmdObject, index: number) => {

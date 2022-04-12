@@ -1,17 +1,15 @@
+import { Command } from "./CmdLexerParser";
+
 export interface CmdObjectEvent {
     detail: {
-        command: string;
+        command: Command;
         result: string;
     }
 }
 
 export interface CmdObject {
-        command: string;
+        command: Command;
         result: string;
-}
-
-export interface Observer {
-    getUpdate: (cmd: CmdObject) => void;
 }
 
 export class RenderCommand extends EventTarget{
