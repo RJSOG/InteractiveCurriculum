@@ -2,7 +2,7 @@ import { CmdObject } from "../RenderCommand";
 import { Command } from "../CmdLexerParser";
 import { RenderCommand } from "../RenderCommand";
 
-export default class CommandTemplate{
+export default class CommandTemplate {
     private _command: Command
     private _result: string;
     private _description: string;
@@ -17,6 +17,7 @@ export default class CommandTemplate{
 
     public toCmdObject(): CmdObject {
         return {
+            type: 'cmd',
             command: this._command,
             result: this._result
         };

@@ -6,12 +6,12 @@ export default class CmdHelp extends CommandTemplate {
         super(cmd);
         this.description = "help command";
     }
-    
+
     public run(): void {
         this.helpText();
         this.RenderCommandInstance.addItemCmdList(this.toCmdObject());
     }
-
+    
     public helpText(): void {
         this.result = "--------Help--------\n";
         this.result += "ls - list files and folders\n";

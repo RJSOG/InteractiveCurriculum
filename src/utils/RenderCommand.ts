@@ -8,6 +8,7 @@ export interface CmdObjectEvent {
 }
 
 export interface CmdObject {
+        type: string;
         command: Command;
         result: string;
 }

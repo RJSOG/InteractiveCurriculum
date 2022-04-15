@@ -37,6 +37,11 @@ export default class CommandCaller {
         const mapper: any = {
             'help': new CmdHelp(cmd),
         }
-        return mapper[cmd.name];
+        if(mapper[cmd.name] !== undefined){
+            return mapper[cmd.name];
+        }else {
+            console.log(cmd);
+            return new CommandTemplate(cmd);
+        }
     }
 }

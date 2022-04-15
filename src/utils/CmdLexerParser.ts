@@ -1,4 +1,5 @@
 import CommandCaller from "./CommandCaller";
+import ShellErrorHandler from "./ShellErrorHandler";
 
 export type Token = {
     value: string,
@@ -17,6 +18,7 @@ export default class CmdLexerParser {
     private _tokenBuff: Token[];
     private _CmdExecutionList: Command[]
     private _CommandCallerInstance: CommandCaller;
+    private _ShellErrorHandler: ShellErrorHandler;
     private _separator: string;
     private _cmdList: string[];
     private _operatorList: string[];
@@ -24,6 +26,7 @@ export default class CmdLexerParser {
     constructor(input: string){
         this._CmdExecutionList = [];
         this._CommandCallerInstance = CommandCaller.getInstance();
+        this._ShellErrorHandler = ShellErrorHandler.getInstance();
         this._input = input;
         this._tokenBuff = [];
         this._separator = " ";
@@ -55,7 +58,7 @@ export default class CmdLexerParser {
         }else if(this._operatorList.includes(token)){
             return "operator";
         }else {
-            return ((this.isCmd(token)) ? "cmd" : "unknown");
+            return ((this.isCmd(token)) ? "cmd" : "unknownCmd");
         }
     }
 
@@ -73,14 +76,19 @@ export default class CmdLexerParser {
 
     public parseTokenBuff(): void {
         let boolfirstCmd: boolean = true;
-        while(this._tokenBuff.length > 0 && this._tokenBuff[0].type !== "unknown"){
+        while(this._tokenBuff.length > 0){
             let token = this._tokenBuff.shift();
-            if(token?.type !== "unknown" && token?.type !== undefined){
+            if(token?.type !== "unknownCmd" && token?.type !== undefined){
                 if(boolfirstCmd){
                     this._CmdExecutionList.push(this.getDefautCmd());
                     boolfirstCmd = false;
                 }
                 this.tokenMapper(token);
+            } else {
+                if(token?.type === "unknownCmd" && token?.value !== undefined){
+                    const error = this._ShellErrorHandler.handleError('UnknownCommand', token.value);
+                    console.error(error);
+                }
             }
         }
     }

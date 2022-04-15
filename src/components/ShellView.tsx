@@ -83,7 +83,7 @@ const ShellView: FunctionComponent = () => {
                         <pre id='render' className="render">
                             {
                                 cmdArr.map((cmd: CmdObject, index: number) => {
-                                    return <div key={index}>{cmd.result}</div>
+                                    return <div key={index} style={(cmd.type === 'error') ? {color: 'red'} : {}}>{cmd.result}</div>
                                 })
                             }   
                         </pre>

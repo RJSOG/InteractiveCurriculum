@@ -48,6 +48,8 @@
     border: none;
     outline: none;
     width: 72%;
+    font-family:'Ubuntu Mono', monospace;
+    font-size: 13px;
 }
 #shell {
     width: 50%;
@@ -57,6 +59,7 @@
 #renderInput {
     padding-top: 0;
     margin-top: 0;
+    overflow: auto;
 }
 #render {
     padding-bottom: 0;
