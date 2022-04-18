@@ -1,21 +1,21 @@
 import { Command } from "./CmdLexerParser";
 
-export interface CmdObjectEvent {
+export interface ICmdObjectEvent {
     detail: {
         command: Command;
         result: string;
     }
 }
 
-export interface CmdObject {
-        type: string;
-        command: Command;
-        result: string;
+export interface ICmdObject {
+    type: string;
+    command: Command;
+            result: string;
 }
 
 export class RenderCommand extends EventTarget{
     private static instance: RenderCommand;
-    private _renderCmdList: CmdObject[];
+    private _renderCmdList: ICmdObject[];
 
     private constructor() {
         super();
@@ -29,18 +29,25 @@ export class RenderCommand extends EventTarget{
         return RenderCommand.instance;
     }
     
-    public addItemCmdList(object: CmdObject): void {
+    public addItemCmdList(object: ICmdObject): void {
         this._renderCmdList.push(object);
         this.dispatchEvent(
             new CustomEvent('newCmd', this.castCmdObject(object))
         );
     }
 
-    public castCmdObject(cmd: CmdObject): CmdObjectEvent {
+    public castCmdObject(cmd: ICmdObject): ICmdObjectEvent {
         return {'detail': cmd};
     }
 
-    public getLastCmd(): CmdObject{
+    public getLastCmd(): ICmdObject{
         return this._renderCmdList[-1];
+    }
+
+    public clearCmdList(): void {
+        this._renderCmdList = [];
+        this.dispatchEvent(
+            new CustomEvent('clearCmdList')
+        )
     }
 }

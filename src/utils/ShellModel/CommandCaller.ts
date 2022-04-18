@@ -1,5 +1,6 @@
-import CommandTemplate from "./Cmd/CommandTemplate";
-import CmdHelp from "./Cmd/Help/Help";
+import CommandTemplate from "../Cmd/CommandTemplate";
+import CmdHelp from "../Cmd/Help";
+import CmdClear from "../Cmd/Clear";
 import { Command } from "./CmdLexerParser";
 
 export default class CommandCaller {
@@ -7,7 +8,7 @@ export default class CommandCaller {
     private _cmdList: string[];
 
     constructor() {
-        this._cmdList = ['ls','cd', 'help', 'wget', 'exit'];
+        this._cmdList = ['ls','cd', 'help', 'wget', 'exit', 'clear'];
     }
 
     public static getInstance(): CommandCaller {
@@ -23,7 +24,7 @@ export default class CommandCaller {
                 const cmd = cmdExecutionList.shift();
                 if(cmd !== undefined){
                     const runningCmd = this.commandMapper(cmd);
-                    runningCmd.run();
+                    if(runningCmd !== null) runningCmd.run();
                 }
             }
         }
@@ -33,15 +34,14 @@ export default class CommandCaller {
         return this._cmdList;
     }
 
-    private commandMapper(cmd: Command): CommandTemplate {
+    private commandMapper(cmd: Command): CommandTemplate | null{
         const mapper: any = {
             'help': new CmdHelp(cmd),
+            'clear': new CmdClear(cmd),
         }
         if(mapper[cmd.name] !== undefined){
             return mapper[cmd.name];
-        }else {
-            console.log(cmd);
-            return new CommandTemplate(cmd);
-        }
+        };
+        return null;
     }
 }

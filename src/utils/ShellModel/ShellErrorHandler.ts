@@ -1,4 +1,4 @@
-import { CmdObject, RenderCommand } from "./RenderCommand";
+import { ICmdObject, RenderCommand } from "./RenderCommand";
 
 export default class ShellErrorHandler {
     private static instance: ShellErrorHandler;
@@ -37,7 +37,7 @@ export default class ShellErrorHandler {
             error = this.CustomError('UnknownError', 'Unknown error - '+ value);
         }
         this.addError(error);
-        this.renderError();
+        this.renderError(value);
         return error;
     }
 
@@ -48,15 +48,15 @@ export default class ShellErrorHandler {
         }
     }
 
-    public renderError(): void {
-        this._RenderCommandInstance.addItemCmdList(this.errorToCmdObject(this._errorList[this._errorList.length - 1]));
+    public renderError(tokenValue: string): void {
+        this._RenderCommandInstance.addItemCmdList(this.errorToCmdObject(this._errorList[this._errorList.length - 1], tokenValue));
     }
 
-    public errorToCmdObject(error: Error): CmdObject {
+    public errorToCmdObject(error: Error, tokenValue: string): ICmdObject {
         return {
             type: 'error',
             command: {
-                name: error.name,
+                name: tokenValue,
                 args: [],
                 flags: []
             },

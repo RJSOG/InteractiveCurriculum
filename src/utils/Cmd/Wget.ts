@@ -1,10 +1,11 @@
-import CommandTemplate from "../CommandTemplate";
-import { Command } from "../../CmdLexerParser";
+import CommandTemplate from "./CommandTemplate";
+import { Command } from "../ShellModel/CmdLexerParser";
 
 export default class CmdWget extends CommandTemplate {
     constructor(cmd: Command) {
         super(cmd);
-        this.description = "wget command";
+        this.description = "Download file over Internet";
+        this.name = "wget";
     }
 
     public run(): void {
@@ -14,5 +15,6 @@ export default class CmdWget extends CommandTemplate {
 
     public getRequest(): void {
         this.result = "wget command";
-    }   
+    }
+    
 }           

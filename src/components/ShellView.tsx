@@ -1,6 +1,6 @@
 import React, { FunctionComponent, useEffect } from "react";
-import InputHandler from "../utils/InputHandler";
-import {RenderCommand, CmdObject} from "../utils/RenderCommand";
+import InputHandler from "../utils/ShellModel/InputHandler";
+import {RenderCommand, ICmdObject} from "../utils/ShellModel/RenderCommand";
 import '../style/ShellView.css'; 
 
 type inputState = {
@@ -15,42 +15,67 @@ type inputChange = {
 
 const RenderCommandInstance = RenderCommand.getInstance();
 const InputHandlerInstance = InputHandler.getInstance();
+const defaultWidth = 768;
+const defaultHeight = 95;
+const user = "user";
+const dir = "/home/user";
+const host = "localhost";
 
 const ShellView: FunctionComponent = () => {
     const [input, setInput] = React.useState<inputState>({isDone: false, value: ""});
-    const [cmdArr, setCmdArr] = React.useState<CmdObject[]>([]);
-    const [shellWidth, setShellWidth] = React.useState<number>(768);
-    const [shellHeight, setShellHeight] = React.useState<number>(95);
+    const [cmdArr, setCmdArr] = React.useState<JSX.Element[]>([]);
+    const [shellWidth, setShellWidth] = React.useState<number>(defaultWidth);
+    const [shellHeight, setShellHeight] = React.useState<number>(defaultHeight);
 
     const newCmdHandler = (e: Event) => {
         const EventResult = (e as CustomEvent).detail;
-        if(EventResult != null) setCmdArr(cmdArr.concat(EventResult as CmdObject));
+        if(EventResult != null) addHTMLElementToCmdArr(EventResult);
     };
 
+    const addHTMLElementToCmdArr = (obj: ICmdObject) => {
+        const element: JSX.Element = renderNewCmd(obj);
+        setCmdArr([...cmdArr, element]);
+    }
+
+    const renderNewCmd = (cmd: ICmdObject) => {
+        console.log(cmd)
+        return (
+            <div key={cmdArr.length-1}>
+                <span>
+                    {shellLine()}
+                    {cmd.command.name}
+                </span><br/>
+                <p style={(cmd.type === 'error') ? {color: 'red'} : {}}>{cmd.result}</p>
+            </div>
+        )
+    }
+    
+    const clearCmdHandler = (e: Event) => {
+        setCmdArr([]);
+    }
+
     RenderCommandInstance.addEventListener('newCmd', newCmdHandler);
+    RenderCommandInstance.addEventListener('clearCmdList',  clearCmdHandler);
 
     useEffect(() => {
         if(input.isDone){
-            renderNewCmd(input.value);
+            // renderNewCmd(input.value);
             setInput({isDone: false, value: ""});
             updateWidthandHeight();
             InputHandlerInstance.handleInput(input.value);
         }  
     }, [input]);
-    const renderNewCmd = (cmd: string) => {
-        const renderDiv = document.getElementById('render');
-        const str = fakeShellLine() + cmd;
-        
-        renderDiv?.append(str);
-        renderDiv?.appendChild(document.createElement('br'));
-    }
 
-    const fakeShellLine = () => {
-        const user = "user";
-        const dir = "/home/user";
-        const host = "localhost";
+    const getUserLine = () => {
         return user+'@'+host+':'+dir+'$ ';
     }
+
+    const shellLine = () => {
+        return (
+            <p id='fakeSys' style={{display: "inline"}}>{getUserLine()}</p>
+        )
+    }
+
 
     const onInputChange = (e: React.ChangeEvent<inputChange>) => {
         setInput({...input, value: e.target.value});
@@ -81,14 +106,16 @@ const ShellView: FunctionComponent = () => {
                     </div>
                     <div className="title">bash -- {shellWidth}x{shellHeight}</div>  
                         <pre id='render' className="render">
+                            <div id="divResult">
                             {
-                                cmdArr.map((cmd: CmdObject, index: number) => {
-                                    return <div key={index} style={(cmd.type === 'error') ? {color: 'red'} : {}}>{cmd.result}</div>
+                                cmdArr.map((cmd: JSX.Element, index: number) => {
+                                    return cmd;
                                 })
-                            }   
+                            }     
+                            </div>  
                         </pre>
                         <pre id='renderInput' className="render">
-                            {fakeShellLine()}
+                            {shellLine()}
                             <input id='input' onChange={onInputChange} onKeyDown={onEnterPress} value={input.value}></input>
                         </pre>                    
                     </div>
